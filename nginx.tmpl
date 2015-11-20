@@ -109,15 +109,8 @@ upstream {{ $host }} {
 
 {{ if (and (ne $cert "") (exists (printf "/etc/nginx/certs/%s.crt" $cert)) (exists (printf "/etc/nginx/certs/%s.key" $cert))) }}
 
-server {
-	server_name {{ $host }};
-	listen 80 {{ $default_server }};
-	access_log /var/log/nginx/access.log vhost;
-	return 301 https://$host$request_uri;
-}
 
 server {
-	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
 	access_log /var/log/nginx/access.log vhost;
 
@@ -159,7 +152,6 @@ server {
 {{ else }}
 
 server {
-	server_name {{ $host }};
 	listen 80 {{ $default_server }};
 	access_log /var/log/nginx/access.log vhost;
 
@@ -169,7 +161,7 @@ server {
 	include /etc/nginx/vhost.d/default;
 	{{ end }}
 
-	location / {
+	location /{{ $host }}/ {
 		proxy_pass {{ trim $proto }}://{{ trim $host }};
 		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
 		auth_basic	"Restricted {{ $host }}";

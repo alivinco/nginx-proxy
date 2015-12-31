@@ -93,7 +93,8 @@ server {
 	add_header Strict-Transport-Security "max-age=31536000";
 	
 {{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
-
+{{ if (index $containers 0).Env.PROTOCOL }} 
+ {{ if or (eq (index $containers 0).Env.PROTOCOL "HTTPS" ) (eq (index $containers 0).Env.PROTOCOL "ALL" ) }}
 	location /{{ $host }}/ {
 		proxy_pass {{ trim $proto }}://{{ trim $host }};
 		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
@@ -106,6 +107,8 @@ server {
                 include /etc/nginx/vhost.d/default_location;
                 {{ end }}
 	}
+  {{ end }}	
+ {{ end }}	
 {{ end }}	
 }
 
@@ -116,6 +119,8 @@ server {
 	access_log /var/log/nginx/access.log vhost;
 	
 {{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
+{{ if (index $containers 0).Env.PROTOCOL }} 
+ {{ if or (eq (index $containers 0).Env.PROTOCOL "HTTP" ) (eq (index $containers 0).Env.PROTOCOL "ALL" ) }}
     {{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
 	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
 	{{ else if (exists "/etc/nginx/vhost.d/default") }}
@@ -129,6 +134,8 @@ server {
                 include /etc/nginx/vhost.d/default_location;
                 {{ end }}
 	}
+ {{ end }}	
+{{ end }} 
 {{ end }}
     location / {
         root /var/www;

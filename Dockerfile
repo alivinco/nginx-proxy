@@ -1,5 +1,5 @@
 FROM nginx:1.9.6
-MAINTAINER Jason Wilder mail@jasonwilder.com
+MAINTAINER Aleksandrs Livincovs aleksandrs.livincovs@gmail.com
 
 # Install wget and install/updates certificates
 RUN apt-get update \
@@ -29,7 +29,7 @@ WORKDIR /app/
 
 ENV DOCKER_HOST unix:///tmp/docker.sock
 
-VOLUME ["/etc/nginx/certs"]
+VOLUME ["/etc/nginx/certs","/var/www"]
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["forego", "start", "-r"]
